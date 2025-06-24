@@ -1,9 +1,11 @@
 import Search from './components/Search.jsx'; 
 // Importing the Search component from the components folder
 
-import { useEffect, useState } from 'react'; 
+import { useDebugValue, useEffect, useState } from 'react'; 
 import Spinner from './components/spinner.jsx';
+import MovieCard from './components/MovieCard.jsx';
 // Importing React hooks: useEffect to run code on component load, useState to store values
+import { useDebounce } from 'react-use';
 
 // API - Application Programming Interface - a set of rules 
 // that allows one piece of software to interact with another.
@@ -36,8 +38,12 @@ const App = () => {
 
   const [isLoading, setIsLoading] = useState(false); 
   // Tracks if the app is currently fetching data (true = loading spinner should show)
+  const [debounceSearchTerm, setDebounceSearchTerm] = useState('')
+  // Debounce the search term to prevent making too many API requests.
+  // by waiting for user to stop typing for 500 milliseconds
+  useDebounce( () => setDebounceSearchTerm (searchTerm), 500, [searchTerm]);
 
-  const fetchMovies = async () => {
+  const fetchMovies = async (query  = '') => {
     setIsLoading(true); 
     // When this function starts, show loading spinner
 
@@ -45,7 +51,9 @@ const App = () => {
     // Clear previous error messages
 
     try {
-      const endpoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`; 
+      const endpoint = query
+      ? `${API_BASE_URL}/search/movie?query=${encodeURI(query)}`
+      : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`; 
       // Full URL to fetch popular movies from TMDB
 
       const response = await fetch(endpoint, API_OPTIONS); 
@@ -82,9 +90,9 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetchMovies(); 
+    fetchMovies(debounceSearchTerm); 
     // Run fetchMovies() one time when the component mounts
-  }, []);
+  }, [debounceSearchTerm]);
 
   return (
     <main>
@@ -120,9 +128,8 @@ const App = () => {
           ) : (
             <ul>
               {moviesList.map((movie) => (
-                <p key={movie.id} className="text-white">
-                  {movie.title}
-                </p> 
+                <MovieCard key={movie.id} movie={movie} />
+               // Render each movie using the MovieCard component
                 // Show each movie title in white text, use movie ID as React key
               ))}
             </ul>
