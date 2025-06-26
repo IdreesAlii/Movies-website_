@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 // 🧠 What to know: useState stores data; useEffect runs side effects
 // ❓ Why we used it: To manage and react to state changes (like loading, fetching)
 
-import Spinner from './components/spinner.jsx';
+import Spinner from './components/Spinner.jsx';
 // ✅ What it does: Imports the Spinner loading component
 // 🧠 What to know: Shows a loading animation when data is being fetched
 // ❓ Why we used it: To improve user experience during API calls
